@@ -7,7 +7,7 @@ Bu proje, modern bir **DevSecOps** mimarisi kullanarak; web saldırılarını en
 ## 🏗️ Mimari ve Veri Akışı
 
 ```mermaid
-graph LR
+graph TD
     A["Saldırgan (Attacker)"] -->|HTTP Request| B("Caddy Web Server + Coraza WAF")
     B -->|"403 Forbidden"| A
     B -->|"Log Yazma"| C["Log Dosyası"]
