@@ -36,15 +36,14 @@ cd soar-waf-lab
 docker compose up -d
 
 🛠️ Kullanılanılan teknolojiler
-```mermaid
-Servis         Görevi                         Erişim Adresi
-DVWA           Hedef (Kurban) Web Uygulaması  http://localhost:8888
-Caddy + Coraza Web Application Firewall (WAF) http://localhost:80
-Vector         Log Toplayıcı ve Yönlendirici  (Arka planda çalışır)
-Elasticsearch  Log Veritabanı (SIEM)          http://localhost:9200
-Kibana         Dashboard ve Görselleştirme    http://localhost:5601
-n8n            SOAR / Otomasyon Platformu     http://localhost:5678
-```
+Servis | Görevi | Erişim Adresi |
+| :--- | :--- | :--- |
+| **DVWA** | Hedef (Kurban) Web Uygulaması | `http://localhost:8888` |
+| **Caddy + Coraza** | Web Application Firewall (WAF) | `http://localhost:80` |
+| **Vector** | Log Toplayıcı ve Yönlendirici | *(Arka planda çalışır)* |
+| **Elasticsearch** | Log Veritabanı (SIEM) | `http://localhost:9200` |
+| **Kibana** | Dashboard ve Görselleştirme | `http://localhost:5601` |
+| **n8n** | SOAR / Otomasyon Platformu | `http://localhost:5678` |
 🧪 Test Senaryosu (PoC)
 Sistemin çalıştığını doğrulamak için SQL Injection saldırı simülasyonu yapabilirsiniz:
 
