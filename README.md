@@ -8,12 +8,12 @@ Bu proje, modern bir **DevSecOps** mimarisi kullanarak; web saldırılarını en
 
 ```mermaid
 graph LR
-    A[Saldırgan (Attacker)] -->|HTTP Request| B(Caddy Web Server + Coraza WAF)
-    B -->|403 Forbidden| A
-    B -->|Log Yazma| C[Log Dosyası]
-    C -->|Log Okuma| D{Vector Log Shipper}
-    D -->|Arşivleme & Görselleştirme| E[Elasticsearch & Kibana]
-    D -->|Alert & Otomasyon| F[n8n Workflow]
+    A["Saldırgan (Attacker)"] -->|HTTP Request| B("Caddy Web Server + Coraza WAF")
+    B -->|"403 Forbidden"| A
+    B -->|"Log Yazma"| C["Log Dosyası"]
+    C -->|"Log Okuma"| D{"Vector Log Shipper"}
+    D -->|"Arşivleme & Görselleştirme"| E["Elasticsearch & Kibana"]
+    D -->|"Alert & Otomasyon"| F["n8n Workflow"]
 ```
 1-Koruma (Prevention): Caddy sunucusu üzerinde çalışan Coraza WAF (OWASP Core Rule Set), gelen SQLi/XSS saldırılarını engeller.
 
