@@ -51,6 +51,8 @@ Servis | Görevi | Erişim Adresi |
 | **Elasticsearch** | Log Veritabanı (SIEM) | `http://localhost:9200` |
 | **Kibana** | Dashboard ve Görselleştirme | `http://localhost:5601` |
 | **n8n** | SOAR / Otomasyon Platformu | `http://localhost:5678` |
+
+
 🧪 Test Senaryosu (PoC)
 Sistemin çalıştığını doğrulamak için SQL Injection saldırı simülasyonu yapabilirsiniz:
 
