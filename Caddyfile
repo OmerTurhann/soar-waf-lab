@@ -1,0 +1,39 @@
+{
+    order coraza_waf first
+    auto_https off
+    admin off
+}
+
+:80 {
+    coraza_waf {
+        # OWASP Kurallarını otomatik yükle
+        load_owasp_crs
+        
+        directives `
+            # Sizin özel ayar dosyalarınız
+            Include /ruleset/coraza.conf
+            Include /ruleset/dvwa.conf
+            Include @owasp_crs/*.conf
+            
+            # === MOTOR AYARLARI ===
+            SecRuleEngine On
+            SecRequestBodyAccess On
+            
+            # === KRİTİK LOGLAMA AYARLARI (SOAR İÇİN) ===
+            # Loglamayı aç (RelevantOnly: Sadece engellenenleri veya uyarıları logla)
+            SecAuditEngine RelevantOnly
+            
+            # Logları JSON formatında yaz (Vector ve Elastic için şart)
+            SecAuditLogFormat JSON
+            
+            # Log dosyasının konumu (Docker Volume ile paylaşılan alan)
+            SecAuditLog /audit/modsec_audit.log
+            
+            # Loglama izinleri ve dosya modları
+            SecAuditLogType Serial
+
+        `
+    }
+
+    reverse_proxy dvwa:80
+}

@@ -1,0 +1,41 @@
+# 1. KAYNAK: WAF Log dosyasını dinle
+[sources.waf_logs]
+type = "file"
+include = ["/audit/modsec_audit.log"] # Caddy'nin log yazdığı dosya (Coraza ayarına göre değişebilir)
+ignore_older_secs = 600
+read_from = "end"
+
+# 2. İŞLEME: JSON verisini ayrıştır
+[transforms.parse_logs]
+type = "remap"
+inputs = ["waf_logs"]
+source = '''
+. = parse_json!(.message)
+'''
+
+# 3. ÇIKTI A: ElasticSearch'e Gönder (Arşiv ve Görselleştirme için)
+[sinks.to_elastic]
+type = "elasticsearch"
+inputs = ["parse_logs"]
+endpoints = ["http://elasticsearch:9200"]
+compression = "none"
+
+[sinks.to_elastic.bulk]
+index = "waf-logs-%Y-%m-%d"
+
+# DÜZELTME BURADA: Index ayarını bulk bloğunun içine aldık
+
+
+# 4. ÇIKTI B: n8n'e Gönder (Otomasyon ve Alarm için)
+[sinks.to_n8n]
+type = "http"
+inputs = ["parse_logs"]
+uri = "http://n8n:5678/webhook/waf-alert"
+encoding.codec = "json"
+method = "post"
+
+# 5. ÇIKTI C: Konsola Yaz (Hata ayıklama için - Opsiyonel)
+[sinks.console_debug]
+type = "console"
+inputs = ["parse_logs"]
+encoding.codec = "json"

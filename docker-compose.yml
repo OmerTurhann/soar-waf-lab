@@ -1,0 +1,157 @@
+version: '3.8'
+
+services:
+  # ==========================================
+  # 1. DEFANS HATTI (WAF + APP + DB)
+  # ==========================================
+
+  caddy:
+    build:
+
+      context: ./caddy
+      dockerfile: Dockerfile
+    container_name: caddy_waf
+    restart: always
+    ports:
+      - "8888:80"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - ./ruleset:/ruleset
+      # Ortak log alanı
+      - audit_data:/audit
+    depends_on:
+      - dvwa
+    networks:
+      - soar-network
+
+  dvwa:
+    image: vulnerables/web-dvwa
+    restart: always
+    environment:
+      - MYSQL_USER=dvwa
+      - MYSQL_PASSWORD=p@ssw0rd
+      - MYSQL_DATABASE=dvwa
+      - MYSQL_HOST=db
+    depends_on:
+      - db
+    networks:
+      - soar-network
+
+  db:
+    image: mysql:5.7
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_USER=dvwa
+      - MYSQL_PASSWORD=p@ssw0rd
+      - MYSQL_DATABASE=dvwa
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - soar-network
+
+  # ==========================================
+  # 2. LOG & DATA MERKEZİ (Elastic + Kibana + Vector)
+  # ==========================================
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.1
+    container_name: elasticsearch
+    restart: always
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false # Lab ortamı için güvenliği kapatıyoruz (Hız kazanmak için)
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m" # Bellek sınırı (PC kasmasın diye)
+    ports:
+      - "9200:9200"
+    volumes:
+      - elastic_data:/usr/share/elasticsearch/data
+    networks:
+      - soar-network
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.11.1
+    container_name: kibana
+    restart: always
+    ports:
+      - "5601:5601"
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    depends_on:
+      - elasticsearch
+    networks:
+      - soar-network
+
+  vector:
+    image: timberio/vector:latest-alpine
+    restart: always
+    command: --config /etc/vector/vector.toml
+    volumes:
+      - ./vector.toml:/etc/vector/vector.toml:ro
+      - audit_data:/audit:ro  # WAF loglarını buradan okuyacak
+    depends_on:
+      - elasticsearch
+    networks:
+      - soar-network
+
+  # ==========================================
+  # 3. SOAR BEYNİ (n8n + Postgres)
+  # ==========================================
+
+  postgres:
+    image: postgres:16
+    restart: always
+    environment:
+      - POSTGRES_USER=n8n
+      - POSTGRES_PASSWORD=siberguvenlik123
+      - POSTGRES_DB=n8n
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - soar-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h localhost -U n8n -d n8n"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  n8n:
+    image: docker.n8n.io/n8nio/n8n
+    restart: always
+    ports:
+      - "5678:5678"
+    environment:
+      - DB_TYPE=postgresdb
+      - DB_POSTGRESDB_HOST=postgres
+      - DB_POSTGRESDB_PORT=5432
+      - DB_POSTGRESDB_DATABASE=n8n
+      - DB_POSTGRESDB_USER=n8n
+      - DB_POSTGRESDB_PASSWORD=siberguvenlik123
+      - GENERIC_TIMEZONE=Europe/Istanbul
+      - TZ=Europe/Istanbul
+      - N8N_SECURE_COOKIE=false
+    command: start --tunnel
+    links:
+      - postgres
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - n8n_data:/home/node/.n8n
+    networks:
+      - soar-network
+
+# ==========================================
+# VOLUME VE NETWORK TANIMLARI
+# ==========================================
+networks:
+  soar-network:
+    driver: bridge
+
+volumes:
+  audit_data:    # WAF yazar -> Vector okur
+  mysql-data:    # DVWA verisi
+  elastic_data:  # Elastic Log verisi
+  postgres_data: # n8n verisi
+  n8n_data:      # n8n ayarları
+
