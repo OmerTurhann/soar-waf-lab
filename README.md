@@ -54,7 +54,9 @@ Servis | Görevi | Erişim Adresi |
 🧪 Test Senaryosu (PoC)
 Sistemin çalıştığını doğrulamak için SQL Injection saldırı simülasyonu yapabilirsiniz:
 
-# WAF tarafından engellenmesi gereken istek
-curl -I "http://localhost:8888/?id=1%27%20OR%201=1"
+2.  **WAF tarafından engellenmesi gereken istek:**
+    ```bash
+    curl -I "http://localhost:8888/?id=1%27%20OR%201=1"
+    ```
 
 Yazar: Ömer Turhan
