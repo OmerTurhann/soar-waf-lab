@@ -26,14 +26,21 @@ graph TD
 🚀 Kurulum (Quick Start)
 Bu projeyi kendi bilgisayarınızda çalıştırmak için Docker ve Docker Compose yüklü olmalıdır.
 
-1-Repoyu Klonlayın:
+1.  **Repoyu Klonlayın:**
+    ```bash
+    git clone https://github.com/OmerTurhann/soar-waf-lab.git
+    cd soar-waf-lab
+    ```
 
-git clone [https://github.com/OmerTurhann/soar-waf-lab.git](https://github.com/OmerTurhann/soar-waf-lab.git)
-cd soar-waf-lab
-
-2-Konteynerleri Başlatın:
-
-docker compose up -d
+2.  **Konteynerleri Başlatın:**
+    ```bash
+    docker compose up -d
+    ```
+    
+3.  **Servislerin Durumunu Kontrol Edin:**
+    ```bash
+    docker compose ps
+    ```
 
 🛠️ Kullanılanılan teknolojiler
 Servis | Görevi | Erişim Adresi |
